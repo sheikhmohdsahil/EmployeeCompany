@@ -1,12 +1,10 @@
 package com.demo.EmployeeCompany.service;
 
-import com.demo.EmployeeCompany.Dto.CompanyDto;
-import com.demo.EmployeeCompany.Dto.CompanyEmployeeDto;
-import com.demo.EmployeeCompany.Dto.EmpCompanyXrefDto;
-import com.demo.EmployeeCompany.Dto.EmployeeDto;
+import com.demo.EmployeeCompany.Dto.*;
 import com.demo.EmployeeCompany.entity.Company;
 import com.demo.EmployeeCompany.entity.Employee;
 import com.demo.EmployeeCompany.entity.EmployeeCompanyXref;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -37,13 +35,19 @@ public interface Service {
 
     List<Employee> getEmployeeBySorting();
 
-    List<CompanyEmployeeDto> fetchAllCompany();
+    CompanyEmployeeDto fetchAllCompany() throws Exception;
 
-    List<Employee> findEmpByNthHighestSalary(int n);
+//    List<Employee> findEmpByNthHighestSalary(int n);
 
     void comanyEmployeeMapping(EmpCompanyXrefDto empCompanyXrefDto) throws Exception;
 
     int findByCompanyId(int companyId);
 
     List<Employee> checkBySalary(int salary);
+
+    List<Employee> findEmpByNthHighestSalary(int n);
+
+    List<EmployeeCompanyXref> findAllcompanies();
+
+    List<ComEmpDTO> fetchAllCompanywithEmployee();
 }

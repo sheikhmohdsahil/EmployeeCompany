@@ -1,20 +1,16 @@
 package com.demo.EmployeeCompany.Dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class CompanyDto {
-
+public class ComEmpDTO {
 
     private String companyName;
 
@@ -24,6 +20,7 @@ public class CompanyDto {
 
     private int phoneNumber;
 
+    private List<EmployeeDto> employeeDto;
 
-   private List<EmployeeDto> employeeDto;
+
 }

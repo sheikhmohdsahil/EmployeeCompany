@@ -20,10 +20,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("select o from Employee o order by length(o.empName), o.empName asc")
      List<Employee> findEmployeeWitAscEmpName();
 
-    @Query("select o from Employee o order by o.salary desc")
+    @Query("select distinct o.salary from Employee o order by o.salary desc")
     List<Employee> findEmpByNthHighestSalary(Pageable pageable);
 
-
-    @Query("select o from Employee o where o.salary =:salary or o.salary >:salary or o.salary <:salary ")
+    @Query("select o from Employee o where o.salary =:salary or o.salary >:salary")
     List<Employee> findByGivenSalary(int salary);
+
 }

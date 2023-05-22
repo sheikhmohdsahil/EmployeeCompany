@@ -1,19 +1,20 @@
 package com.demo.EmployeeCompany.Dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompanyEmployeeDto {
 
-    private String companyName;
+     private List<CompanyDto> companyDto;
 
-    private String address;
 
-    private String email;
 
-    private int phoneNumber;
-
-    @JsonIgnore
-    private List<EmployeeDto> employeeDto;
+   // private List<EmployeeDto> employeeDto;
 }

@@ -1,15 +1,13 @@
 package com.demo.EmployeeCompany.service;
 
-import com.demo.EmployeeCompany.Dto.CompanyDto;
-import com.demo.EmployeeCompany.Dto.CompanyEmployeeDto;
-import com.demo.EmployeeCompany.Dto.EmpCompanyXrefDto;
-import com.demo.EmployeeCompany.Dto.EmployeeDto;
+import com.demo.EmployeeCompany.Dto.*;
 import com.demo.EmployeeCompany.entity.Company;
 import com.demo.EmployeeCompany.entity.Employee;
 import com.demo.EmployeeCompany.entity.EmployeeCompanyXref;
 import com.demo.EmployeeCompany.repository.CompanyRepository;
 import com.demo.EmployeeCompany.repository.EmpComXrefRepository;
 import com.demo.EmployeeCompany.repository.EmployeeRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -94,50 +92,71 @@ public class ServiceImpl  implements Service{
 
 
 
-
-
-
-
     @Override
     public List<Employee> getEmployeeBySorting() {
         return employeeRepository.findEmployeeWitAscEmpName();
     }
 
     @Override
-    public List<CompanyEmployeeDto> fetchAllCompany() {
+    public CompanyEmployeeDto fetchAllCompany() throws Exception {
+        List<Company> companies = companyRepository.findAll();
+        List<CompanyDto> companyDtoList = new ArrayList<>();
 
-        List<CompanyEmployeeDto> comEmpList = new ArrayList<>();
-        List<Company> compList = companyRepository.findAll();
+        if (companies.isEmpty()) {
+            throw new Exception("Companies is empty ");
+        };
+        for (Company company : companies) {
+            CompanyDto companyDto = new CompanyDto();
+            BeanUtils.copyProperties(company, companyDto);
+
+            Integer companyId = company.getId();
+            List<Employee> employees = empComXrefRepository.findAllEmployees(companyId);
+
+            List<EmployeeDto> employeeDtoList = new ArrayList<>();
+
+            for (Employee employee : employees) {
+                EmployeeDto employeeDto = new EmployeeDto();
+                BeanUtils.copyProperties(employee, employeeDto);
+                employeeDtoList.add(employeeDto);
+            }
+            companyDto.setEmployeeDto(employeeDtoList);
+                companyDtoList.add(companyDto);
 
 
-        compList.stream().forEach(company -> {
-            comEmpList.add((CompanyEmployeeDto) compList);
-        });
+        }
+            CompanyEmployeeDto companyEmployeeDto = new CompanyEmployeeDto();
+            companyEmployeeDto.setCompanyDto(companyDtoList);
+//            companyEmployeeDto.setEmployeeDto(employeeDtoListnew);
+            return companyEmployeeDto;
 
-        return comEmpList;
-    }
+        }
 
     public List<Employee> findEmpByNthHighestSalary(int n) {
-        Pageable pageable = PageRequest.of(n - 1, 1, Sort.by("salary").descending());
+        Pageable pageable = PageRequest.of(n - 1, 2, Sort.Direction.DESC,"salary");
         return employeeRepository.findEmpByNthHighestSalary(pageable);
+       // return employeeRepository.findAll(pageable);
     }
+
+
 
     @Override
     public void comanyEmployeeMapping(EmpCompanyXrefDto empCompanyXrefDto) throws Exception {
+        EmployeeCompanyXref employeeCompanyXref = new EmployeeCompanyXref();
 
-        EmployeeCompanyXref employeeCompanyXref=null;
+        // Retrieve the Employee
         Optional<Employee> optionalEmployee = employeeRepository.findById(empCompanyXrefDto.getEmployeeId());
         if (optionalEmployee.isPresent()) {
             employeeCompanyXref.setEmployee(optionalEmployee.get());
         } else {
-            throw new Exception("employee not present");
+            throw new Exception("Employee not found for ID: " + empCompanyXrefDto.getEmployeeId());
         }
-        Optional<Company> optionalCompany=companyRepository.findById(empCompanyXrefDto.getCompanyId());
-        if( optionalCompany.isPresent()){
+
+        // Retrieve the Company
+        Optional<Company> optionalCompany = companyRepository.findById(empCompanyXrefDto.getCompanyId());
+        if (optionalCompany.isPresent()) {
             employeeCompanyXref.setCompany(optionalCompany.get());
-        }
-        else {
-            throw new Exception("Company Id  not present");
+        } else {
+            throw new Exception("Company not found for ID: " + empCompanyXrefDto.getCompanyId());
         }
 
         empComXrefRepository.save(employeeCompanyXref);
@@ -155,4 +174,39 @@ public class ServiceImpl  implements Service{
         return employeeRepository.findByGivenSalary(salary);
     }
 
+
+    @Override
+    public List<EmployeeCompanyXref> findAllcompanies() {
+        return empComXrefRepository.findAll();
+    }
+    @Override
+    public List<ComEmpDTO> fetchAllCompanywithEmployee() {
+        ComEmpDTO comEmpDTO = null;
+        List<ComEmpDTO> comEmpDTOList=new ArrayList<>();
+        List<Company> companies=companyRepository.findAll();
+
+        for (Company company : companies) {
+            CompanyDto companyDto = new CompanyDto();
+            BeanUtils.copyProperties(company, companyDto);
+
+            Integer companyId = company.getId();
+            List<Employee> employees = empComXrefRepository.findAllEmployees(companyId);
+
+            List<EmployeeDto> employeeDtoList = new ArrayList<>();
+
+
+            for (Employee employee : employees) {
+                EmployeeDto employeeDto = new EmployeeDto();
+                BeanUtils.copyProperties(employee, employeeDto);
+                employeeDtoList.add(employeeDto);
+                comEmpDTO = new ComEmpDTO();
+                comEmpDTO.setPhoneNumber(company.getPhoneNumber());
+                comEmpDTO.setCompanyName(company.getCompanyName());
+                comEmpDTO.setEmployeeDto(employeeDtoList);
+            }
+
+            comEmpDTOList.add(comEmpDTO);
+        }
+        return comEmpDTOList;
+    }
 }
